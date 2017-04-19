@@ -1,0 +1,38 @@
+Average Wait  34.00 secs   0 tasks remaining.
+Average Wait  37.00 secs   0 tasks remaining.
+Average Wait  52.00 secs   0 tasks remaining.
+Average Wait  39.00 secs   0 tasks remaining.
+Average Wait  48.00 secs   0 tasks remaining.
+Average Wait  38.00 secs   0 tasks remaining.
+Average Wait  64.00 secs   0 tasks remaining.
+Average Wait  23.00 secs   1 tasks remaining.
+Average Wait  50.00 secs   1 tasks remaining.
+Average Wait  52.00 secs   0 tasks remaining.
+Overall average wait time: 43.00 secs
+
+Average Wait  52.00 secs   0 tasks remaining.
+Average Wait  28.00 secs   0 tasks remaining.
+Average Wait  20.00 secs   0 tasks remaining.
+Average Wait  23.00 secs   0 tasks remaining.
+Average Wait  37.00 secs   0 tasks remaining.
+Average Wait  24.00 secs   1 tasks remaining.
+Average Wait  10.00 secs   0 tasks remaining.
+Average Wait  20.00 secs   0 tasks remaining.
+Average Wait  28.00 secs   0 tasks remaining.
+Average Wait  30.00 secs   0 tasks remaining.
+Overall average wait time: 27.00 secs
+
+Average Wait   9.00 secs   1 tasks remaining.
+Average Wait  19.00 secs   0 tasks remaining.
+Average Wait  10.00 secs   0 tasks remaining.
+Average Wait  15.00 secs   0 tasks remaining.
+Average Wait   8.00 secs   0 tasks remaining.
+Average Wait   9.00 secs   0 tasks remaining.
+Average Wait   9.00 secs   0 tasks remaining.
+Average Wait  16.00 secs   0 tasks remaining.
+Average Wait  10.00 secs   0 tasks remaining.
+Average Wait   7.00 secs   0 tasks remaining.
+Overall average wait time: 11.00 secs
+
+Format error minimum task size. Exiting
+Invalid number of printers. Exiting

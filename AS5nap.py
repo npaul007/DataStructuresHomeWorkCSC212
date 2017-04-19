@@ -1,4 +1,6 @@
 import random
+from before import runBefore
+runBefore()
 
 class Queue:
     def __init__(self):
@@ -39,9 +41,9 @@ class Printer:
         self.timeRemaining = newtask.getPages() * 60/self.pagerate
 
 class Task:
-    def __init__(self,time):
+    def __init__(self,time,minSize,maxSize):
         self.timestamp = time
-        self.pages = random.randrange(1,21)
+        self.pages = random.randrange(minSize,maxSize)
 
     def getStamp(self):
         return self.timestamp
@@ -52,30 +54,79 @@ class Task:
     def waitTime(self, currenttime):
         return currenttime - self.timestamp
 
-def simulation(numSeconds, pagesPerMinute):
-    #printers
-    labprinter = Printer(pagesPerMinute)
-    labprinter2 = Printer(pagesPerMinute)
-    
-    printQueue = Queue()
-    printQueue2 = Queue()
-    
-    waitingtimes = []
+def simulation(numberOfIterations, numSeconds, pagesPerMinute, minSize, maxSize,fout):
+    overall = 0
+    printContent = []
 
-    for currentSecond in range(numSeconds):
-        if newPrintTask():
-            task = Task(currentSecond)
-            printQueue.enqueue(task)
+    for i in range(numberOfIterations):
+        labprinter = Printer(pagesPerMinute)    
+        printQueue = Queue()
+        waitingtimes = []
 
-        if not labprinter.busy() and not printQueue.is_empty():
-            nexttask = printQueue.dequeue()
-            waitingtimes.append(nexttask.waitTime(currentSecond))
-            labprinter.startNext(nexttask)
+        for currentSecond in range(numSeconds):
+            if newPrintTask():
+                task = Task(currentSecond,minSize,maxSize)
+                printQueue.enqueue(task)
 
-        labprinter.tick()
+            if not labprinter.busy() and not printQueue.is_empty():
+                nexttask = printQueue.dequeue()
+                waitingtimes.append(nexttask.waitTime(currentSecond))
+                labprinter.startNext(nexttask)
 
-    averageWait = sum(waitingtimes)/len(waitingtimes)
-    print("Average Wait %6.2f secs %3d tasks remaining." % (averageWait,printQueue.size()))
+            labprinter.tick()
+
+        averageWait = sum(waitingtimes)/len(waitingtimes)
+        overall = overall + averageWait
+        fout.write("Average Wait %6.2f secs %3d tasks remaining.\n" % (averageWait,printQueue.size()))
+
+    averageOverall = overall/numberOfIterations
+    fout.write('Overall average wait time: %.2f secs\n' % averageOverall)
+
+def simulationTwoPrinters(numberOfIterations, numSeconds, pagesPerMinute,pagesPerMinute2, minSize, maxSize,fout):
+    overall = 0
+    printContent =[]
+ 
+    for i in range(numberOfIterations):
+        labprinter = Printer(pagesPerMinute)
+        labprinter2 = Printer(pagesPerMinute2) 
+        
+        printQueue = Queue()
+        waitingtimes = []
+
+        for currentSecond in range(numSeconds):
+            if newPrintTask():
+                task = Task(currentSecond,minSize,maxSize)
+                printQueue.enqueue(task)
+
+            if not labprinter.busy() and not printQueue.is_empty():
+                nexttask = printQueue.dequeue()
+                waitingtimes.append(nexttask.waitTime(currentSecond))
+                labprinter.startNext(nexttask)
+
+            if not labprinter2.busy() and not printQueue.is_empty():
+                nexttask = printQueue.dequeue()
+                waitingtimes.append(nexttask.waitTime(currentSecond))
+                labprinter2.startNext(nexttask)
+
+            if not labprinter.busy() and not labprinter2.busy() and not printQueue.is_empty():
+                if pagesPerMinute > pagesPerMinute2:       
+                    nexttask = printQueue.dequeue()
+                    waitingtimes.append(nexttask.waitTime(currentSecond))
+                    labprinter.startNext(nexttask)
+                elif pagesPerMinute2 > pagesPerMinute:
+                    nexttask = printQueue.dequeue()
+                    waitingtimes.append(nexttask.waitTime(currentSecond))
+                    labprinter2.startNext(nexttask) 
+
+            labprinter.tick()
+            labprinter2.tick()
+
+        averageWait = sum(waitingtimes)/len(waitingtimes)
+        overall = overall + averageWait
+        fout.write("Average Wait %6.2f secs %3d tasks remaining.\n" % (averageWait,printQueue.size()))
+
+    averageOverall = overall/numberOfIterations
+    fout.write('Overall average wait time: %.2f secs\n' % averageOverall)
 
 def newPrintTask():
     num = random.randrange(1,181)
@@ -99,10 +150,12 @@ def getConfigurations():
     for content in fileContents:
         #new configuration set detected in text file
         if content == '\n':
-            #reset configuration key setter
-            counter = 0
             #push configurations to list
             allConfigs.append(config)
+            
+            #reset configuration key setter
+            counter = 0
+            config = dict()
         else:
             # add data to config dictionary
             config[keys[counter]] = content.replace('\n','')
@@ -110,14 +163,45 @@ def getConfigurations():
 
     return allConfigs
 
-def main():
-    '''
-    # run simulation 10 times
-    for i in range(10):
-        simulation(3600, 10) '''
+def runProject(config,fout):
+    configs = getConfigurations()
+    numOfPrinters = int(config['numOfPrinters'])
     
-    print(getConfigurations())
+    try:
+        if numOfPrinters <= 2:
+            if numOfPrinters == 1:
+                simulation(int(config['simExperiments']),
+                           int(config['simTime']),
+                           int(config['ppmPrintOne']),
+                           int(config['minTask']),
+                           int(config['maxTask']),fout)
+                fout.write('\n')
+            if numOfPrinters == 2:
+                simulationTwoPrinters(int(config['simExperiments']),
+                                      int(config['simTime']),
+                                      int(config['ppmPrintOne']),
+                                      int(config['ppmPrintTwo']),
+                                      int(config['minTask']),
+                                      int(config['maxTask']),fout)
+                fout.write('\n')
+               
+        else:
+            fout.write('Invalid number of printers. Exiting\n')
+        
+        
+    except ValueError:
+        fout.write('Format error minimum task size. Exiting\n')
 
+def main():
+    configs = getConfigurations()
+    fout= open("sim_out.txt",'w')
+    
+    print('Processing simulations. Please wait.')
+    for config in configs:
+        runProject(config,fout)
+    fout.close()
+    print('Process Complete. Data written to sim_out.txt file')
+        
 # main method   
 if __name__ == "__main__":
     main()
