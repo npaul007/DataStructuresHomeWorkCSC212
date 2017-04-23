@@ -1,7 +1,3 @@
-import random
-from before import runBefore
-runBefore()
-
 class Queue:
     def __init__(self):
         self.items = []
